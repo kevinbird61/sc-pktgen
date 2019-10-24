@@ -8,8 +8,8 @@
 #include <signal.h>
 #include <getopt.h>
 
-#define CPU_MZ 1699999
-#define MSEC 1000
+#define CPU_MZ 1699999      /* using "cat /proc/cpuinfo" to see `cpu MHz` */
+#define MSEC 1000           /* 1000 ms (as 1 sec) */
 
 /* thread arguments */
 struct thread_info {
