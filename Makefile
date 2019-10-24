@@ -1,18 +1,18 @@
 CC:=gcc
-EXEC:= lab1 lab2-sleep lab2-rdtsc thread_ver
+EXEC:= lab1.out lab2-sleep.out lab2-rdtsc.out thread_ver.out
 
 all: $(EXEC)
 
-lab1: measure_cpu_clock.c
+lab1.out: measure_cpu_clock.c
 	$(CC) -o $@ $<
 
-lab2-sleep: pkt_gen.c
+lab2-sleep.out: pkt_gen.c
 	$(CC) -o $@ $<
 
-lab2-rdtsc: rdtsc_pkt_gen.c
+lab2-rdtsc.out: rdtsc_pkt_gen.c
 	$(CC) -o $@ $<
 
-thread_ver: thread_ver.c
+thread_ver.out: thread_ver.c
 	$(CC) -o $@ $< -lpthread
 
 .PHONY=clean
