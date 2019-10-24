@@ -99,29 +99,34 @@ int main(int argc, char *argv[])
 
     // create 2 threads
     struct thread_info *tinfo;
+    pthread_attr_t attr;
+
+    // init thread creation attributes
+    pthread_attr_init(&attr);
+
     tinfo = calloc(2, sizeof(tinfo));
     if(tinfo==NULL){
         printf("Error when calloc.\n");
         exit(1);
     }
     
-    // first thread -> timer + pkt_sender
+    // first thread -> timer
     tinfo[0].thread_num=1;
-    if(pthread_create(&tinfo[0].thread_id, NULL, &timer, &tinfo[0])){
+    if(pthread_create(&tinfo[0].thread_id, &attr, &timer, &tinfo[0])){
         // handle error
         perror("pthread_create - timer");
     }
 
+    // second thread -> packet sender
     tinfo[1].thread_num=2;
-    if(pthread_create(&tinfo[1].thread_id, NULL, &pkt_sender, &tinfo[0])){
+    if(pthread_create(&tinfo[1].thread_id, &attr, &pkt_sender, &tinfo[0])){
         perror("pthread_create - pkt_sender");
     }
 
+    // join with each thread
     void *res;
     pthread_join(tinfo[0].thread_id, &res);
     pthread_join(tinfo[1].thread_id, &res);
-    
-    // second thread -> printer
     
     return 0;
 }
