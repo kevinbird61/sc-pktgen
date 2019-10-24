@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
 
     if(!rflag){
         printf("You didn't assign packet rate parameter!\n");
-        printf("Using default value %d pps.\n", interval);
+        printf("Using default value %d pps.\n", pkt_rate);
     } 
     if(!iflag){
         printf("You didn't assign interval parameter!\n");
