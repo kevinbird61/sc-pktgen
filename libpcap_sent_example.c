@@ -151,14 +151,15 @@ int main(int argc, char *argv[])
  
     printf("Using network device: %s\n", dev);
 
-    // generate packet
+    // generate packet 
+    // FIXME: 54 -> change to dynamic allocation
     char *pkt;
     pkt=malloc(54*sizeof(char));
     gen_dummy_pkt(pkt);
     
     // send
     int byte_written=pcap_inject(handle, pkt, 54);
-    printf("sent bytes: %d, strlen: %ld\n", byte_written, sizeof(pkt));    
+    printf("sent bytes: %d\n", byte_written);
 
     return 0;
 }
