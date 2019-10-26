@@ -13,6 +13,8 @@
 int pkt_rate=100;   // 100 pps
 // int interval=100;   // output 100 ms
 
+void print_options();
+
 int main(int argc, char *argv[])
 {
     /* using getopt library to catpure user's options 
@@ -41,6 +43,9 @@ int main(int argc, char *argv[])
                 intf=optarg;
                 printf("User-defined interface: %s\n", intf);
                 break;
+            default:
+                // print helper function 
+                print_options();
         }
     }
 
@@ -61,18 +66,33 @@ int main(int argc, char *argv[])
 
     // open device
     pcap_t *handle;
+    unsigned char mac_intf[8];
+    unsigned char ip_addr[16];
     handle=pcap_open_live(intf, BUFSIZ, 1, 10000, err_buf);
     if(handle==NULL){
         printf("Network device: %s is not available. Please check your interface again.\n", intf);
         return 1;
+    } else {
+        get_mac(intf, mac_intf);
+        printf("Interface's MAC: %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n" , mac_intf[0], mac_intf[1], mac_intf[2], mac_intf[3], mac_intf[4], mac_intf[5]);
+        get_ip(intf, ip_addr);
+        printf("Interface's IP: %s\n", ip_addr);
     }
 
-    unsigned char mac_intf[8];
-    get_mac(intf, mac_intf);
-    printf("Mac : %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n" , mac_intf[0], mac_intf[1], mac_intf[2], mac_intf[3], mac_intf[4], mac_intf[5]);
-
+    char pkt[200];
+    encap_eth(pkt, "ff:ff:ff:ff:ff:ff", mac_intf, ETHERTYPE_IP);
+    encap_ipv4(pkt+sizeof(struct ip), 40, 6, ip_addr, "8.8.8.8");
+    encap_tcp(pkt+sizeof(struct ip), 2000, 80, 1, 0, 8192, 0x02);
+    
+    printf("sent bytes: %d\n", pcap_inject(handle, pkt, sizeof(struct ether_header)+sizeof(struct ip)+sizeof(struct tcphdr)));
+    
     // TODO: using parameters/arguments to generate packet!
 
 
     return 0;
+}
+
+void print_options()
+{
+
 }
