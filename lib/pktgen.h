@@ -2,9 +2,10 @@
 #define __PKTGEN__
 
 #include <netinet/if_ether.h>
-#include <netinet/tcp.h>
-#include <netinet/in.h>
-#include <netinet/ip.h>
+#include <netinet/udp.h>            // https://android.googlesource.com/platform/bionic/+/f8a2243/libc/include/netinet/udp.h
+#include <netinet/tcp.h>            // https://android.googlesource.com/platform/bionic/+/master/libc/include/netinet/tcp.h
+#include <netinet/in.h>             // https://android.googlesource.com/platform/bionic/+/master/libc/include/netinet/in.h
+#include <netinet/ip.h>             // https://android.googlesource.com/platform/bionic/+/master/libc/include/netinet/ip.h
 #include <arpa/inet.h>
 #include <pcap/pcap.h>
 

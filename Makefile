@@ -3,7 +3,7 @@ CFLAGS:=-std=gnu99
 LIBS:=-Ilib/
 OBJS:= $(patsubst %.c, %.o, $(subst lib/,,$(wildcard lib/*.c)))
 TEST:= $(patsubst %.c, %.out, $(subst test/,,$(wildcard test/*.c)))
-EXEC:= libpcap_sent_example.out
+EXEC:= $(patsubst %.c, %.exe, $(subst src/,,$(wildcard src/*.c)))
 
 all: $(OBJS) $(TEST) $(EXEC)
 
@@ -13,10 +13,10 @@ all: $(OBJS) $(TEST) $(EXEC)
 %.out: test/%.c 
 	$(CC) -o $@ $< -lpthread
 
-libpcap_sent_example.out: libpcap_sent_example.c
+%.exe: src/%.c
 	$(CC) $(LIBS) -o $@ $(OBJS) $< -lpcap
 
 .PHONY=clean
 
 clean:
-	rm $(EXEC) $(OBJS)
+	rm $(EXEC) $(OBJS) $(TEST)
