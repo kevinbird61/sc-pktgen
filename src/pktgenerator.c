@@ -8,6 +8,7 @@
 
 #include "pktgen.h"
 #include "utils.h"
+#include "intf.h"
 
 int pkt_rate=100;   // 100 pps
 // int interval=100;   // output 100 ms
@@ -62,9 +63,13 @@ int main(int argc, char *argv[])
     pcap_t *handle;
     handle=pcap_open_live(intf, BUFSIZ, 1, 10000, err_buf);
     if(handle==NULL){
-        printf("Network device: %s is not available. Please check your interface again.\n");
+        printf("Network device: %s is not available. Please check your interface again.\n", intf);
         return 1;
     }
+
+    unsigned char mac_intf[8];
+    get_mac(intf, mac_intf);
+    printf("Mac : %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n" , mac_intf[0], mac_intf[1], mac_intf[2], mac_intf[3], mac_intf[4], mac_intf[5]);
 
     // TODO: using parameters/arguments to generate packet!
 

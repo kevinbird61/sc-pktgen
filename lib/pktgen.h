@@ -11,12 +11,27 @@
 
 #include "utils.h"
 
-/* basic encap. func for ethernet header */
+/* basic encap. func for ethernet header (with "fixed" default setting) */
 void encap_eth_default(char *pkt);
 void encap_ipv4_default(char *pkt);
 void encap_tcp_default(char *pkt);
-
 /* generate dummy pkt */ 
 void gen_dummy_pkt(char *pkt);
+
+/* ethernet */
+void encap_eth(char *pkt_eth,
+    const char *dmac, const char *smac, unsigned short ethertype);
+/* ipv4 */
+void encap_ipv4(char *pkt_ip,
+    int total_len, int protocol,
+    char *srcIP, char *dstIP);
+
+/* tcp */
+void encap_tcp(char *pkt_tcp, unsigned short sport, unsigned short dport,
+    unsigned int seq, unsigned ack_seq, unsigned short window,
+    unsigned char flags);
+
+/* udp */
+void encap_udp(char *pkt_udp, unsigned short sport, unsigned short dport);
 
 #endif 
