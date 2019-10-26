@@ -18,17 +18,39 @@ void print_options();
 int main(int argc, char *argv[])
 {
     /* using getopt library to catpure user's options 
+     * - options:
+     *      - r: packet rate
+     *      - i: network interface 
+     *      - sip: source ip (spoof)
+     *      - dip: destination ip
+     *      - sport: source port
+     *      - dport: destintation port
      * - flags: (denote which feature is enable)
      *      - 0x01: pkt_rate 
      *      - 0x02: interface
-     *      - 0x04: destination IP address
-     *      - 0x08: l4 protocol (tcp/udp/...)
+     *      - 0x04: source IPv4
+     *      - 0x08: destination IPv4
+     *      - 0x010: l4 protocol (tcp/udp/...)
+     *      - 0x020: source port
+     *      - 0x040: destintation port
     */
     char err_buf[PCAP_ERRBUF_SIZE];
     int ch, flags=0;
     char *intf;
 
-    while((ch=getopt(argc,argv,"r:i:"))!=-1) {
+    const char *short_opt="r:i:s:";
+    struct option long_opt[]=
+    {
+        {"packet_rate", required_argument, NULL, 'r'},
+        {"interface", required_argument, NULL, 'i'},
+        {"sip", required_argument, NULL, 0},
+        {"dip", required_argument, NULL, 0},
+        {"sport", required_argument, NULL, 0},
+        {"dport", required_argument, NULL, 0}
+    };
+
+    int option_index=0;
+    while((ch=getopt_long_only(argc, argv, short_opt, long_opt, &option_index))!=-1) {
         switch(ch)
         {
             case 'r':
@@ -42,6 +64,23 @@ int main(int argc, char *argv[])
                 flags|=0x02;
                 intf=optarg;
                 printf("User-defined interface: %s\n", intf);
+                break;
+            case 0:
+                // support different options with same prefix alphabet
+                // printf("option %s\n", long_opt[option_index].name);
+                if(!strcmp(long_opt[option_index].name, "sip")){
+                    // specify source IP
+                    printf("[Options: %s] %s\n", long_opt[option_index].name, optarg);
+                } else if(!strcmp(long_opt[option_index].name, "dip")){
+                    // specify destination IP
+                    printf("[Options: %s] %s\n", long_opt[option_index].name, optarg);
+                } else if(!strcmp(long_opt[option_index].name, "sport")){
+                    // specify source port
+                    printf("[Options: %s] %d\n", long_opt[option_index].name, atoi(optarg));
+                } else if(!strcmp(long_opt[option_index].name, "dport")){
+                    // specify destination port
+                    printf("[Options: %s] %d\n", long_opt[option_index].name, atoi(optarg));
+                }
                 break;
             default:
                 // print helper function 
@@ -79,6 +118,7 @@ int main(int argc, char *argv[])
         printf("Interface's IP: %s\n", ip_addr);
     }
 
+    /* generate a MAC/IP/TCP packet */
     char pkt[200];
     encap_eth(pkt, "ff:ff:ff:ff:ff:ff", mac_intf, ETHERTYPE_IP);
     encap_ipv4(pkt+sizeof(struct ip), 40, 6, ip_addr, "8.8.8.8");
