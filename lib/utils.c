@@ -44,16 +44,14 @@ unsigned int get_cpufreq()
     cycles[0]=read_tsc();
     gettimeofday(&tvstart, &tz);
 
-    usleep(250000);
+    usleep(25000);
 
     cycles[1]=read_tsc();
     gettimeofday(&tvstop, &tz);
  
-    microseconds = ((tvstop.tv_sec-tvstart.tv_sec)*1000) + (tvstop.tv_usec-tvstart.tv_usec);
+    microseconds = ((tvstop.tv_sec-tvstart.tv_sec)*1000000) + (tvstop.tv_usec-tvstart.tv_usec);
  
     mhz = (unsigned int) (cycles[1]-cycles[0]) / (microseconds);
- 
-    printf("%i MHz\n", mhz);
 
-    return mhz;
+    return mhz*1000;
 }

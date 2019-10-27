@@ -18,6 +18,7 @@ int interval=1000;
 double pkt_sent_slot=0.0;
 double total_sent_pkts=0;
 unsigned int CPU_HZ=0;
+unsigned char mac_intf[8];
 
 void print_options();
 
@@ -25,6 +26,7 @@ void print_options();
 struct thread_info {
     pthread_t   thread_id;
     int         thread_num;
+    pcap_t      *handle;
 };
 
 // timer function 
@@ -33,13 +35,19 @@ static void *timer(void *arg)
     struct thread_info *tinfo = (struct thread_info*) arg;
     //pthread_cond_wait(&tinfo->cond, &tinfo->mutex);
     unsigned long long t_start=read_tsc(), t_measure=0, t_prev_sec=t_start;
+    double prev_sent=0;
+
     while(1)
     {
         t_measure=read_tsc();
         // execute 1 time per sec
         if(((t_measure-t_prev_sec)/CPU_HZ)>MSEC){
             // print 
-            printf("[%lld s] Packet rate: %u pps. Pkt sent in each slot(~ %dms): %f. Total packet sent: %f\n", (t_measure-t_start)/(CPU_HZ*MSEC), pkt_rate, interval, pkt_sent_slot, total_sent_pkts);
+            // printf("[%lld s] Packet rate: %u pps. Pkt sent in each slot(~ %dms): %f. Total packet sent: %f\n", (t_measure-t_start)/(CPU_HZ*MSEC), pkt_rate, interval, pkt_sent_slot, total_sent_pkts);
+            pkt_sent_slot=total_sent_pkts-prev_sent;
+            prev_sent=total_sent_pkts;
+            printf("[%lld s] Packet rate: %u pps. Pkt sent in each slot(~ %dms): %f. Total packet sent: %f\n", 
+                (t_measure-t_start)/(CPU_HZ*MSEC), pkt_rate, interval, pkt_sent_slot, total_sent_pkts);
             // update 
             t_prev_sec=t_measure;
         }
@@ -49,13 +57,21 @@ static void *timer(void *arg)
 static void *pkt_sender(void *arg)
 {
     struct thread_info *tinfo = (struct thread_info*) arg;
-    //pthread_cond_wait(&tinfo->cond, &tinfo->mutex);
+
+    /* FIXME: using *arg instead dummy pkts */
+    char pkt[200];
+    gen_dummy_pkt(pkt);
+    encap_eth(pkt, "ff:ff:ff:ff:ff:ff", mac_intf, ETHERTYPE_IP);
+
+    // per pkt time (ms)
+    double per_pkt_time=((double)MSEC/pkt_rate);
+
     unsigned long long t_start=read_tsc(), t_measure=0, t_prev=t_start;
     while(1)
     {
         t_measure=read_tsc();
 
-        if(interval <= 0){
+        /*if(interval <= 0){
             // update per while loop
             pkt_sent_slot=((double)(t_measure-t_prev)/(CPU_HZ*MSEC))*pkt_rate;
             total_sent_pkts+=pkt_sent_slot;
@@ -67,7 +83,13 @@ static void *pkt_sender(void *arg)
                 total_sent_pkts+=pkt_sent_slot;
                 t_prev=t_measure;
             }
-        } 
+        }*/
+        if(((t_measure-t_prev)/CPU_HZ) >= per_pkt_time){
+            total_sent_pkts++;
+            /* send dummy pkt */
+            pcap_inject(tinfo->handle, pkt, sizeof(struct ether_header)+sizeof(struct ip)+sizeof(struct tcphdr));
+            t_prev=t_measure;
+        }
     }
 }
 
@@ -113,6 +135,8 @@ int main(int argc, char *argv[])
     char sip[32]={0}, dip[32]={0};
     unsigned short sport, dport;
 
+    CPU_HZ=get_cpufreq();
+    printf("CPU_MHz: %u\n", CPU_HZ);
     const char *short_opt="hr:i:";
     struct option long_opt[]=
     {
@@ -186,7 +210,6 @@ int main(int argc, char *argv[])
 
     // open device
     pcap_t *handle;
-    unsigned char mac_intf[8];
     unsigned char ip_addr[16];
     handle=pcap_open_live(intf, BUFSIZ, 1, 10000, err_buf);
     if(handle==NULL){
@@ -207,7 +230,6 @@ int main(int argc, char *argv[])
     
     // send the packet
     // printf("sent bytes: %d\n", pcap_inject(handle, pkt, sizeof(struct ether_header)+sizeof(struct ip)+sizeof(struct tcphdr)));
-    CPU_HZ=get_cpufreq();
 
     // register key press C-z
     if(signal(SIGTSTP, &inc_pktrate)==SIG_ERR){
@@ -215,9 +237,11 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    // TODO: 
-    // using parameters/arguments to generate packet!
-    // create 2 threads, one send packets and the other print status periodically
+    /* TODO: 
+     * - [ ] using parameters/arguments to generate packet!
+     * - [x] create 2 threads, one send packets and the other print status periodically
+     * - [ ] add user-defined parameters into pkt_sender thread, and let it send those dummy packets
+    */
     struct thread_info *tinfo;
     pthread_attr_t attr;    
 
@@ -232,6 +256,7 @@ int main(int argc, char *argv[])
     
     // first thread -> timer
     tinfo[0].thread_num=1;
+    tinfo[0].handle=NULL;
     if(pthread_create(&tinfo[0].thread_id, &attr, &timer, &tinfo[0])){
         // handle error
         perror("pthread_create - timer");
@@ -239,7 +264,8 @@ int main(int argc, char *argv[])
 
     // second thread -> packet sender
     tinfo[1].thread_num=2;
-    if(pthread_create(&tinfo[1].thread_id, &attr, &pkt_sender, &tinfo[0])){
+    tinfo[1].handle=handle;
+    if(pthread_create(&tinfo[1].thread_id, &attr, &pkt_sender, &tinfo[1])){
         perror("pthread_create - pkt_sender");
     }
 
