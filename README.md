@@ -7,5 +7,5 @@ A packet generator built by C language, which is one of my self-training side pr
 * Dependencies
     * `libpcap`: `sudo apt install libpcap-dev`
 * using GNU make: `make` 
-* run the program: `sudo ./pktgenerator.exe` (with default parameter)
-    * list all support options: `sudo ./pktgenerator.exe -h`
+* run the program: `sudo ./sc-pktgen.exe` (with default parameter)
+    * list all support options: `sudo ./sc-pktgen.exe -h`

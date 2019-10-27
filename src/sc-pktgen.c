@@ -60,8 +60,9 @@ static void *pkt_sender(void *arg)
 
     /* FIXME: using *arg instead dummy pkts */
     char pkt[200];
-    gen_dummy_pkt(pkt);
-    encap_eth(pkt, "ff:ff:ff:ff:ff:ff", mac_intf, ETHERTYPE_IP);
+    memset(pkt, 0x00, 200);
+    //gen_dummy_pkt(pkt);
+    //encap_eth(pkt, "ff:ff:ff:ff:ff:ff", mac_intf, ETHERTYPE_IP);
 
     // per pkt time (ms)
     double per_pkt_time=((double)MSEC/pkt_rate);
@@ -88,6 +89,7 @@ static void *pkt_sender(void *arg)
             total_sent_pkts++;
             /* send dummy pkt */
             pcap_inject(tinfo->handle, pkt, sizeof(struct ether_header)+sizeof(struct ip)+sizeof(struct tcphdr));
+            // printf("sent byte: %d\n", pcap_inject(tinfo->handle, pkt, sizeof(struct ether_header)+sizeof(struct ip)+sizeof(struct tcphdr)));
             t_prev=t_measure;
         }
     }
