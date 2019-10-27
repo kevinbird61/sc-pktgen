@@ -102,6 +102,7 @@ void inc_pktrate(int sig)
             // inc pkt rate by 1000 
             pkt_rate+=1000;
             // change per_pkt_time
+            /* FIXME: if pkt_rate > 1000, per_pkt_time will reach its upperbound */
             per_pkt_time=((double)MSEC/pkt_rate);
             break;
         case SIGINT:
