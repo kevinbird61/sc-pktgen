@@ -8,7 +8,8 @@
 #include <signal.h>
 #include <getopt.h>
 
-#define CPU_MZ 1699999      /* using "cat /proc/cpuinfo" to see `cpu MHz` */
+// need to configure CPU_HZ if using different computer
+#define CPU_HZ 1699999      /* using "cat /proc/cpuinfo" to see `cpu MHz` */
 #define MSEC 1000           /* 1000 ms (as 1 sec) */
 
 /* thread arguments */
@@ -39,9 +40,9 @@ static void *timer(void *arg)
     {
         t_measure=read_tsc();
         // execute 1 time per sec
-        if(((t_measure-t_prev_sec)/CPU_MZ)>MSEC){
+        if(((t_measure-t_prev_sec)/CPU_HZ)>MSEC){
             // print 
-            printf("[%lld s] Packet rate: %u pps. Pkt sent in each slot(~ %dms): %f. Total packet sent: %f\n", (t_measure-t_start)/(CPU_MZ*MSEC), pkt_rate, interval, pkt_sent_slot, total_sent_pkts);
+            printf("[%lld s] Packet rate: %u pps. Pkt sent in each slot(~ %dms): %f. Total packet sent: %f\n", (t_measure-t_start)/(CPU_HZ*MSEC), pkt_rate, interval, pkt_sent_slot, total_sent_pkts);
             // update 
             t_prev_sec=t_measure;
         }
@@ -59,13 +60,13 @@ static void *pkt_sender(void *arg)
 
         if(interval <= 0){
             // update per while loop
-            pkt_sent_slot=((double)(t_measure-t_prev)/(CPU_MZ*MSEC))*pkt_rate;
+            pkt_sent_slot=((double)(t_measure-t_prev)/(CPU_HZ*MSEC))*pkt_rate;
             total_sent_pkts+=pkt_sent_slot;
             t_prev=t_measure;
         } else {
             // update per interval
-            if(((t_measure-t_prev)/CPU_MZ) >= interval){
-                pkt_sent_slot=((double)(t_measure-t_prev)/(CPU_MZ*MSEC))*pkt_rate;
+            if(((t_measure-t_prev)/CPU_HZ) >= interval){
+                pkt_sent_slot=((double)(t_measure-t_prev)/(CPU_HZ*MSEC))*pkt_rate;
                 total_sent_pkts+=pkt_sent_slot;
                 t_prev=t_measure;
             }

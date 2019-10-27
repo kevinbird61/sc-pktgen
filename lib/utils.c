@@ -30,3 +30,30 @@ void filled_eth(u8 *eth,
     *(eth+4)=b4;
     *(eth+5)=b5;
 }
+
+unsigned int get_cpufreq()
+{
+    struct timezone tz;
+    struct timeval tvstart, tvstop;
+    unsigned long long int cycles[2];
+    unsigned long microseconds;
+    unsigned int mhz;
+
+    memset(&tz, 0, sizeof(tz));
+
+    cycles[0]=read_tsc();
+    gettimeofday(&tvstart, &tz);
+
+    usleep(250000);
+
+    cycles[1]=read_tsc();
+    gettimeofday(&tvstop, &tz);
+ 
+    microseconds = ((tvstop.tv_sec-tvstart.tv_sec)*1000) + (tvstop.tv_usec-tvstart.tv_usec);
+ 
+    mhz = (unsigned int) (cycles[1]-cycles[0]) / (microseconds);
+ 
+    printf("%i MHz\n", mhz);
+
+    return mhz;
+}

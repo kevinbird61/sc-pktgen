@@ -14,7 +14,7 @@ all: $(OBJS) $(TEST) $(EXEC)
 	$(CC) -o $@ $< -lpthread
 
 %.exe: src/%.c
-	$(CC) $(LIBS) -o $@ $(OBJS) $< -lpcap
+	$(CC) $(LIBS) -o $@ $(OBJS) $< -lpcap -lpthread
 
 .PHONY=clean
 
