@@ -14,6 +14,7 @@
 #define MSEC 1000
 
 int pkt_rate=100;   // 100 pps
+double per_pkt_time=10; // per pkt time (ms)
 int interval=1000;
 double pkt_sent_slot=0.0;
 double total_sent_pkts=0;
@@ -64,9 +65,6 @@ static void *pkt_sender(void *arg)
     //gen_dummy_pkt(pkt);
     //encap_eth(pkt, "ff:ff:ff:ff:ff:ff", mac_intf, ETHERTYPE_IP);
 
-    // per pkt time (ms)
-    double per_pkt_time=((double)MSEC/pkt_rate);
-
     unsigned long long t_start=read_tsc(), t_measure=0, t_prev=t_start;
     while(1)
     {
@@ -103,6 +101,8 @@ void inc_pktrate(int sig)
         case SIGTSTP:
             // inc pkt rate by 1000 
             pkt_rate+=1000;
+            // change per_pkt_time
+            per_pkt_time=((double)MSEC/pkt_rate);
             break;
         case SIGINT:
             exit(1);
@@ -209,6 +209,8 @@ int main(int argc, char *argv[])
         }
         printf("Using default value %s.\n", intf);
     }
+
+    per_pkt_time=((double)MSEC/pkt_rate);
 
     // open device
     pcap_t *handle;
