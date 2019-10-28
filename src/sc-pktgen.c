@@ -51,7 +51,7 @@ static void *timer(void *arg)
     {
         t_measure=read_tsc();
         // execute 1 time per sec
-        if(((t_measure-t_prev_sec)/CPU_HZ)>MSEC){
+        if((double)(t_measure-t_prev_sec)>(MSEC*CPU_HZ)){
             // print 
             // printf("[%lld s] Packet rate: %u pps. Pkt sent in each slot(~ %dms): %f. Total packet sent: %f\n", (t_measure-t_start)/(CPU_HZ*MSEC), pkt_rate, interval, pkt_sent_slot, total_sent_pkts);
             pkt_sent_slot=total_sent_pkts-prev_sent;
@@ -118,13 +118,16 @@ static void *pkt_sender(void *arg)
          * cost 3.439250 ms and per_pkt_time is 0.909091) This problem 
          * will appear only when you using very high transmission rate.
         */
+        // printf("[@%lld], %f\n", t_measure-t_prev, per_pkt_time*CPU_HZ);
         if(((double)(t_measure-t_prev)) >= per_pkt_time*CPU_HZ){
             // printf("%f, %f\n", (double)(t_measure-t_prev)/CPU_HZ, per_pkt_time);
             total_sent_pkts++;
-            // send dummy pkt 
+            // send dummy pkt (FIXME: add logging function)
             pcap_inject(tinfo->handle, pkt, size_existed);
             // printf("sent byte: %d\n", pcap_inject(tinfo->handle, pkt, sizeof(struct ether_header)+sizeof(struct ip)+sizeof(struct tcphdr)));
-            t_prev=t_measure;
+
+            // add additional clock cycle back to previous point (starting time of each interval)
+            t_prev=(t_measure - ((t_measure-t_prev)-per_pkt_time*CPU_HZ));
         }
     }
 }
