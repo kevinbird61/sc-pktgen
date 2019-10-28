@@ -1,6 +1,7 @@
 CC:=gcc
 CFLAGS:=-std=gnu99
-LIBS:=-Ilib/
+LIBS:=-lpcap -lpthread
+INC:=-Ilib/
 OBJS:= $(patsubst %.c, %.o, $(subst lib/,,$(wildcard lib/*.c)))
 TEST:= $(patsubst %.c, %.out, $(subst test/,,$(wildcard test/*.c)))
 EXEC:= $(patsubst %.c, %.exe, $(subst src/,,$(wildcard src/*.c)))
@@ -8,13 +9,13 @@ EXEC:= $(patsubst %.c, %.exe, $(subst src/,,$(wildcard src/*.c)))
 all: $(OBJS) $(TEST) $(EXEC)
 
 %.o: lib/%.c 
-	$(CC) $(CFLAGS) -c $^ -lpcap 
+	$(CC) $(CFLAGS) -c $^ $(LIBS) 
 
 %.out: test/%.c 
-	$(CC) -o $@ $< -lpthread
+	$(CC) $(INC) -o $@ $(OBJS) $< $(LIBS)
 
 %.exe: src/%.c
-	$(CC) $(LIBS) -o $@ $(OBJS) $< -lpcap -lpthread
+	$(CC) $(INC) -o $@ $(OBJS) $< $(LIBS)
 
 .PHONY=clean
 

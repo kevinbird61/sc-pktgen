@@ -18,7 +18,7 @@ void encap_ipv4(char *pkt_ip,
     // total length
     iph->ip_len=htons(total_len);
     // protocol
-    iph->ip_p=6;
+    iph->ip_p=protocol;
     // src & dst addr
     struct in_addr srcip, dstip;
     srcip.s_addr=ipv4str2hex(srcIP);

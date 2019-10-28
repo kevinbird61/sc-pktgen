@@ -38,7 +38,8 @@ int main(int argc, char *argv[])
  
     printf("Using network device: %s\n", dev);
 
-    // Scenario 1: generate a dummy packet 
+    // generate packet 
+    // FIXME: 54 -> change to dynamic allocation
     char *pkt;
     pkt=malloc(54*sizeof(char));
     gen_dummy_pkt(pkt);
@@ -46,7 +47,6 @@ int main(int argc, char *argv[])
     // send
     int byte_written=pcap_inject(handle, pkt, 54);
     printf("sent bytes: %d\n", byte_written);
-
 
     return 0;
 }

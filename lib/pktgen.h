@@ -11,6 +11,11 @@
 
 #include "utils.h"
 
+#define SIZE_ETH    sizeof(struct ethhdr)
+#define SIZE_IP     sizeof(struct ip)
+#define SIZE_TCP    sizeof(struct tcphdr)
+#define SIZE_UDP    sizeof(struct udphdr)
+
 /* basic encap. func for ethernet header (with "fixed" default setting) */
 void encap_eth_default(char *pkt);
 void encap_ipv4_default(char *pkt);
