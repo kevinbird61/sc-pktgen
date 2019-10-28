@@ -1,5 +1,5 @@
 CC:=gcc
-CFLAGS:=-std=gnu99
+CFLAGS:=-std=gnu99 -O2
 LIBS:=-lpcap -lpthread
 INC:=-Ilib/
 OBJS:= $(patsubst %.c, %.o, $(subst lib/,,$(wildcard lib/*.c)))

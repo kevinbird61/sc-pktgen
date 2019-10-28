@@ -8,6 +8,7 @@ void encap_udp(char *pkt_udp, unsigned short sport, unsigned short dport)
 
     udp->source=htons(sport);
     udp->dest=htons(dport);
-    // udp->len=(sizeof(struct udphdr));
+    udp->len=htons(8);
     // udp->check
 }
+

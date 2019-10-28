@@ -75,16 +75,20 @@ static void *pkt_sender(void *arg)
     protocol=(tinfo->params->flags&0x040)>0? 17: 6;
 
     memset(pkt, 0x00, 200);
-    encap_eth(pkt, "ff:ff:ff:ff:ff:ff", mac_intf, ETHERTYPE_IP);
+    // encap_eth(pkt, "ff:ff:ff:ff:ff:ff", mac_intf, ETHERTYPE_IP);
+    // FIXME: how to fill in the dmac?
+    encap_eth(pkt, "de:b4:0f:81:62:cb", mac_intf, ETHERTYPE_IP);
     encap_ipv4(pkt+SIZE_ETH, totalen, protocol, tinfo->params->sip, tinfo->params->dip);
     if(tinfo->params->flags&0x040){
         // udp
         encap_udp(pkt+SIZE_ETH+SIZE_IP, tinfo->params->sport, tinfo->params->dport);
+        compute_udp_csum(pkt+SIZE_ETH);
         size_existed+=SIZE_ETH+SIZE_IP+SIZE_UDP;
     } else {
         // tcp (TODO: assigned control flags, default is SYN)
         encap_tcp(pkt+SIZE_ETH+SIZE_IP, tinfo->params->sport, tinfo->params->dport,
-            1, 0, 8192, 0x02);
+            1, 0, 8192, 0x002);
+        compute_tcp_csum(pkt+SIZE_ETH);
         size_existed+=SIZE_ETH+SIZE_IP+SIZE_TCP;
     }
 
@@ -114,7 +118,7 @@ static void *pkt_sender(void *arg)
          * cost 3.439250 ms and per_pkt_time is 0.909091) This problem 
          * will appear only when you using very high transmission rate.
         */
-        if(((double)(t_measure-t_prev)/CPU_HZ) >= per_pkt_time){
+        if(((double)(t_measure-t_prev)) >= per_pkt_time*CPU_HZ){
             // printf("%f, %f\n", (double)(t_measure-t_prev)/CPU_HZ, per_pkt_time);
             total_sent_pkts++;
             // send dummy pkt 

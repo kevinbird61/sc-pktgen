@@ -35,8 +35,10 @@ void encap_ipv4(char *pkt_ip,
 void encap_tcp(char *pkt_tcp, unsigned short sport, unsigned short dport,
     unsigned int seq, unsigned ack_seq, unsigned short window,
     unsigned char flags);
+void compute_tcp_csum(char *pkt_ip);
 
 /* udp */
 void encap_udp(char *pkt_udp, unsigned short sport, unsigned short dport);
+void compute_udp_csum(char *pkt_ip);
 
 #endif 
