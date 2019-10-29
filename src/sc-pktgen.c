@@ -118,7 +118,7 @@ static void *pkt_sender(void *arg)
          * cost 3.439250 ms and per_pkt_time is 0.909091) This problem 
          * will appear only when you using very high transmission rate.
         */
-        // printf("[@%lld], %f\n", t_measure-t_prev, per_pkt_time*CPU_HZ);
+        // printf("Interval [@%lld], CPU cycle Per sec. [@%.2f]\n", t_measure-t_prev, per_pkt_time*CPU_HZ);
         if(((double)(t_measure-t_prev)) >= per_pkt_time*CPU_HZ){
             // printf("%f, %f\n", (double)(t_measure-t_prev)/CPU_HZ, per_pkt_time);
             total_sent_pkts++;
@@ -128,6 +128,7 @@ static void *pkt_sender(void *arg)
 
             // add additional clock cycle back to previous point (starting time of each interval)
             t_prev=(t_measure - ((t_measure-t_prev)-per_pkt_time*CPU_HZ));
+            // t_prev=(t_measure);
         }
     }
 }
