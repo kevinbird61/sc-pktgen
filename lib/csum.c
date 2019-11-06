@@ -12,12 +12,10 @@ void compute_ipv4_csum(char *pkt_ip)
     }
 
     // each 2 bytes add together (except checksum)
+    iph->ip_sum=0; // set checksum field to 0
     unsigned int checksum=0;
-    for(int i=0;i<10;i++){
-        // skip checksum field
-        if(i!=5){
-            checksum+=(unsigned short)(pkt_ip+sizeof(char)*2*i);
-        }
+    for(int i=0;i<(iph->ip_hl<<2);i+=2){
+        checksum+=(unsigned short)(pkt_ip+sizeof(char)*i);
     }
 
     // check the carry, if exceed, add it back
