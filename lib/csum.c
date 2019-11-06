@@ -1,5 +1,33 @@
 #include "pktgen.h"
 
+void compute_ipv4_csum(char *pkt_ip)
+{
+    struct ip *iph;
+    iph=(struct ip*)pkt_ip;
+    
+    // check if ip len is 5 (20 bytes)
+    if(iph->ip_hl<5){
+        perror("Invalid IP length");
+        exit(1);
+    }
+
+    // each 2 bytes add together (except checksum)
+    unsigned int checksum=0;
+    for(int i=0;i<10;i++){
+        // skip checksum field
+        if(i!=5){
+            checksum+=(unsigned short)(pkt_ip+sizeof(char)*2*i);
+        }
+    }
+
+    // check the carry, if exceed, add it back
+    unsigned int carry=checksum>>16;
+    checksum+=carry;
+    
+    // complement 
+    iph->ip_sum=htons(~checksum);
+}
+
 void compute_tcp_csum(char *pkt_ip)
 {
     struct ip *iph;

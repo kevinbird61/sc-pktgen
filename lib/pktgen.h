@@ -30,6 +30,7 @@ void encap_eth(char *pkt_eth,
 void encap_ipv4(char *pkt_ip,
     int total_len, int protocol,
     char *srcIP, char *dstIP);
+void compute_ipv4_csum(char *pkt_ip);
 
 /* tcp */
 void encap_tcp(char *pkt_tcp, unsigned short sport, unsigned short dport,

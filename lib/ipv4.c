@@ -25,4 +25,7 @@ void encap_ipv4(char *pkt_ip,
     dstip.s_addr=ipv4str2hex(dstIP);
     iph->ip_src=srcip;
     iph->ip_dst=dstip;
+
+    // checksum 
+    compute_ipv4_csum(pkt_ip);
 }
