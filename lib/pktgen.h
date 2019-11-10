@@ -23,15 +23,21 @@ void encap_tcp_default(char *pkt);
 /* generate dummy pkt */ 
 void gen_dummy_pkt(char *pkt);
 
+/************************************** Layer 2 **************************************/
 /* ethernet */
 void encap_eth(char *pkt_eth,
     const char *dmac, const char *smac, unsigned short ethertype);
+
+/************************************** Layer 3 **************************************/
 /* ipv4 */
 void encap_ipv4(char *pkt_ip,
     int total_len, int protocol,
     char *srcIP, char *dstIP);
 void compute_ipv4_csum(char *pkt_ip);
+/* arp */
+#include "arp.h"
 
+/************************************** Layer 4 **************************************/
 /* tcp */
 void encap_tcp(char *pkt_tcp, unsigned short sport, unsigned short dport,
     unsigned int seq, unsigned ack_seq, unsigned short window,
