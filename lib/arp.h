@@ -7,6 +7,11 @@
 #include <string.h>
 #include "utils.h"
 
+/* Some useful refs: 
+ - https://pastebin.com/9Udd0uH7
+ - https://stackoverflow.com/questions/16710040/arp-request-and-reply-using-c-socket-programming
+*/
+
 #define ARP_TABLE_SIZE      16 
 #define ARP_TIMEOUT         30000
 #define ARP_RES_TIME	    250		/* 2.5 seconds			*/
